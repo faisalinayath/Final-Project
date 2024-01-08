@@ -1,13 +1,1 @@
-Logger and WireExceptionHandler
-A logger utility class is initialized. This logger is then passed to the WireExceptionHandler class.
-Get Wire Advice Details
-The get_wire_advice_details() function is called. This function fetches pending transactions and exceptions from the transaction_exception table. The function filters the records by is_processed and transaction_type, and limits the result to 5 records. If no records are found, it returns a status of 200 OK.
-Loop Through Pending Transactions
-If records are found, the function loops through them. If the feed_type of a transaction is "PD", the transaction ID is appended to the pd_pending_tran_ids list. If the feed_type is "CD", the transaction ID is appended to the cd_pending_tran_ids list.
-Create Reference Number Dictionaries
-For CD Transactions, the create_reference_number_dict() function is called. This function initializes three dictionaries: pending_reference_number, tran_id_mapping_with_refs, and tran_id_mapping_dr_cr. It then fetches records from the cd_transaction_info table and stores them in query_result. The dictionaries are updated with the tran_id, bank_reference_account_no, and debit_credit_indicator from the query_result. If the post_date is in pending_reference_numbers, it appends the bank_reference_account_no to the corresponding date in pending_reference_numbers. The function then returns the three dictionaries.
-Process Pending References
-The returned dictionaries are stored in the variables cd_pending_reference, cd_mapping_with_refs, and _. The process_pending_references() function is then called with cd_pending_reference and cd_mapping_with_refs as arguments. This function splits the reference number into bank_reference and account_number, maps the reference number to tran_id using mapping_with_refs, and sends a request to the wire service to get wire advice details.
-Update Tables
-If the response from the wire service is valid, the wire_advice_mapper function is called to map the data from the response into a format compatible with the WireAdviceDetailsSchema. The wire_advice is then loaded into a WireAdviceDetailsSchema object and inserted into the WireAdviceDetails table. If the feed_type is "CD", the CD_Transaction_Info table is updated with the reference_id. If the feed_type is "PD", the PD_Transaction_Info table is updated. If the wire_response is None, the TransactionException table is updated with "Error" as the status and "None" as the reference_id.
-The same process applies to PD processes as well. The create_reference_number_dict() function is called on PdTransaction, and the process_pending_references() function is called with the resulting dictionaries.
+
