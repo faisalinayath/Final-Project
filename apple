@@ -1,1 +1,68 @@
-apple
+Process_pending_notifi_events
+
+1. Retrieving and Decoding the Message: The function first retrieves the body of the incoming message and decodes it from bytes to a string. This is done using the `get_body()` method and the `decode()` function.
+
+2. Decrypting the Message: The decoded message is then decrypted using a function named `decrypt()`. The decrypted message is stored in a variable.
+
+3. Loading the Decrypted Message The decrypted message is then loaded as a JSON object using the `json.loads()` function. This JSON object is stored in a variable.
+
+4. Checking the Event Type: The function then checks if the event type in the loaded JSON object is valid. This is done using a function named `check valid_event_type()`. If the event type is not valid, the rest of the code in the function will not execute.
+
+5. Creating an Event Object: If the event type is valid, the function then creates an event object. This is done by converting the loaded JSON object back into a JSON string, then parsing it again using a custom object hook (`NotifiEventDepTrn`). The parsed object is stored in a variable.
+
+6. Setting Transaction Code and Indicator: The function then sets the transaction code and indicator based on the attributes of the event object. This is done using functions named `set_type_indicator()` and accessing the `TrnCode` attribute of the event object.
+
+7. Mapping to a Transaction: The function then maps the event object to a transaction. This is done using a method named `map_to_cd_tran()` on a class named `NotifiParser`. The mapped transaction is stored in a variable.
+
+8. Loading the Transaction into a Model: The function then loads the mapped transaction into a model. This is done using a method named `load()` on a class named `CDTransactionInfoSchema`. The loaded model is stored in a variable.
+
+9. Upserting the Transaction Info: Finally, the function upserts the transaction info into a database. This is done using a method named `upsert_into_cd_trans_info()` on a class named `CdTransactionInfoDao`.
+
+In summary, this function processes a notification event by decrypting it, checking its validity, creating an event object, setting the transaction code and indicator, mapping the event object to a transaction, loading the transaction into a model, and finally upserting the transaction info into a database.
+
+
+Process_rejected_dna_transaction
+This code is part of a blob trigger that processes rejected DNA transactions. It's an asynchronous function that takes a blob as an argument. Here's a step-by-step explanation of what the code does:n
+1. Initializing Record Status: The function first initializes a dictionary named `record_status` with three keys: `processed_count`, `unprocessed_count`, and `logger_count`. All their values are initially set to 0.
+
+2. Reading and Decoding the Blob Content: The function then reads the content of the blob and decodes it from bytes to a string. This is done using the `read()` and `decode()` methods.
+
+3. Reading the DNA Record: The function then reads the DNA record from the decoded blob content. This is done using the `next()` function and the `csv.reader()` function.
+
+4. Processing Each Row: The function then processes each row in the DNA record. For each row, it creates a dictionary where the keys are the DNA header and the values are the row data.
+
+5. Creating CD Transaction Information: The function then creates CD transaction information using a method named `create_cd_transaction_info()` on a class named `ProcessRejectedDnaTransactionParser`. The created CD transaction information is stored in a variable.
+
+6. Getting BAI Type Code: The function then gets the BAI type code using a method named `get_bai_type_code()` on a class named `bai_directory_lookup`. The BAI type code is added to the CD transaction information dictionary.
+
+7. Loading the Transaction Info into a Model: The function then loads the CD transaction information into a model. This is done using a method named `load()` on a class named `CDTransactionInfoSchema`. The loaded model is stored in a variable.
+
+8. Upserting the Transaction Info: The function then upserts the transaction info into a database. This is done using a method named `upsert_into_cd_trans_info()` on a class named `CdTransactionInfoDao`.
+
+9. Updating Record Status: Finally, the function updates the `processed_count` in the `record_status` dictionary.
+
+In summary, this function processes rejected DNA transactions by reading and decoding the blob content, processing each row in the DNA record, creating CD transaction information, getting the BAI type code, loading the transaction info into a model, upserting the transaction info into a database, and updating the record status.
+
+
+Repost_deadletter_to_topic
+
+This code is part of an HTTP trigger that reposts dead-letter messages to a topic. Here's a step-by-step explanation of what the code does:
+
+1. Getting Parameters: The function first gets the parameters `topicName`, `repostFilter`, and `subscriptionName` from the request. These parameters are used to specify the topic, the filter for reposting, and the subscription name respectively.
+
+2. Reposting Dead-Letter Messages: The function then reposts the dead-letter messages to the specified topic. This is done using a method named `repost_dead_letter_message_to_topic()` on a class named `ServiceBus`. The number of total messages sent is stored in a variable.
+
+3. Creating a ServiceBusClient: The function then creates a `ServiceBusClient` from a connection string. This client is used to interact with the Azure Service Bus.
+
+4. Getting a Subscription Receiver: The function then gets a `ServiceBusReceiver` for the specific subscription under the topic. This receiver is used to receive messages from the dead-letter queue of the subscription.
+
+5. Receiving Messages: The function then receives a batch of messages at once from the dead-letter queue. The maximum wait time and the maximum message count for receiving messages are specified.
+
+6. Sending Messages: If there are any received messages, the function then sends these messages to the specified topic. This is done using a `ServiceBusSender` for the topic. Before sending each message, the function increments a counter and applies the repost filter to the message. After sending each message, the function completes the message in the receiver.
+
+7. Returning the Number of Sent Messages: Finally, the function returns the number of sent messages.
+
+In summary, this function reposts dead-letter messages from a subscription to a topic by getting the necessary parameters from the request, reposting the messages, creating a ServiceBusClient, getting a Subscription Receiver, receiving messages from the dead-letter queue, sending these messages to the topic, and returning the number of sent messages.
+
+
+
