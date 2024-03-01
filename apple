@@ -1,1 +1,19 @@
-mango
+To summarize the process in a simple and clean way without subheadings:
+
+1. Verify the current and previous steps to ensure the current step is runnable.
+2. Retrieve up to 30 records from the transactions exception table where the value is "PD".
+3. Load all records from the BAI directory into a lookup dictionary (`lookup_dict`) with keys as lookup keys and values as tuples containing the BAI type code.
+4. Create a list of pending transaction IDs from the pending transactions exceptions list.
+5. For each transaction ID in the pending transaction IDs list, query the `PD TRANSACTION_INFO` table to fetch the record. Create three dictionaries:
+   - `pending_reference_numbers`: Maps post dates to lists of bank reference account numbers.
+   - `tran_id_mapping_with_refs`: Maps bank reference account numbers to transaction IDs.
+   - `tran_id_mapping_dr_cr`: Maps transaction IDs to debit/credit indicators.
+6. Pass the dictionaries to the `process_pd_pending_reference()` function. This function iterates through the `pd_pending_references` keys (post dates) and for each post date, it retrieves the reference number string.
+7. Use the reference number string to call the ACH API, which returns a list of ACH records (`result`).
+8. For each ACH record in `result`, retrieve the transaction ID using the `tran_id_mapping_with_refs` dictionary and the ACH record's trace number and original account.
+9. Make an entry in the `ACH_ADVICE_DETAILS` table with the ACH detail, which returns a reference number. This creates a one-to-many relationship between `ACH_ADVICE_DETAILS` and `ACH_ADENDA_DETAILS`, as many adenda details records can be associated with a single `ACH_ADVICE_DETAILS` record.
+10. Make an entry of the adenda details into the `ACH_ADENDA_DETAILS` table along with the reference number.
+11. Use the transaction ID to get the BAI type code from the `lookup_dict`.
+12. Update the `PD TRANSACTION_INFO` table with the ACH reference ID, transaction type, and BAI type code.
+
+This summary outlines the steps involved in processing pending transactions, interacting with the ACH API, and updating the database with the processed information.
